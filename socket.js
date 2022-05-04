@@ -1,13 +1,25 @@
-import {createServer} from "http";
-import {Server}from "socket.io";
+var app = require('http').createServer(handler)
+var io = require('socket.io')(app);
+var fs = require('fs');
 
-const httpServer = createServer();
-const io = new Server(httpServer, {
-  // options
-});
+app.listen(80);
 
-io.on("connection", (socket) => {
-  // ...
-});
+function handler (req, res) {
+  fs.readFile(__dirname + '/index.html',
+  function (err, data) {
+    if (err) {
+      res.writeHead(500);
+      return res.end('Error loading index.html');
+    }
 
-httpServer.listen(3000);
+    res.writeHead(200);
+    res.end(data);
+  });
+}
+
+io.on('connection', function (socket) {
+  socket.emit('news', { hello: 'world' });
+  socket.on('my other event', function (data) {
+    console.log(data);
+  });
+});  
