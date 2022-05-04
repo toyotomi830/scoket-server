@@ -2,8 +2,8 @@ var app = require('http').createServer(handler)
 var io = require('socket.io')(app);
 var fs = require('fs');
 
-app.listen(300);
-console.log("listened to 300");
+app.listen(80);
+console.log("listened to 80");
 function handler (req, res) {
   fs.readFile(__dirname + '/index.html',
   function (err, data) {
