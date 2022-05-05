@@ -15,7 +15,7 @@ io.on('connection', function (socket) {
     console.log('disconnected');
   });
   socket.on('message',function(msg){
-    socket.emit(msg)
-    console.log('recived'+msg);
+    socket.broadcast.emit('message',msg)
+    console.log('recived '+msg);
   });
 });  

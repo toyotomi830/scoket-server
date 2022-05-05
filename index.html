@@ -32,8 +32,13 @@
       form.addEventListener('submit', function(e) {
         e.preventDefault();
         if (input.value) {
-          socket.emit('message', input.value);
-          input.value = '';
+            var item = document.createElement('li');
+            item.textContent = input.value;
+            item.style.background="#777777";
+            messages.appendChild(item);
+            window.scrollTo(0, document.body.scrollHeight);
+            socket.emit('message', input.value);
+            input.value = '';
         }
       });
 
