@@ -45,12 +45,9 @@
     </style>
   </head>
   <body>
-    <ul class="button">
-      <li class="button" ><a class="active" href="#message" id="messageButton">message</a></li>
-      <li class="button" ><a href="#notice" id="noticeButton">notice</a></li>
+    <ul class="button" id="channelButtons">
     </ul>
-    <div style="margin-top: 5rem;"><ul class="messages" id="message"></ul>
-    <ul class="messages" id="notice" hidden></ul>
+    <div style="margin-top: 5rem;" id="messageLists"></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
     </form></div>
@@ -58,23 +55,57 @@
 
     <script type="module">
         import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";      
-      var socket = io();
-      
-      var form = document.getElementById('form');
-      var input = document.getElementById('input');
-      var topic = "message";
-      window.addEventListener('hashchange', function() {
-        topic=document.location.hash;
-        topic=topic.slice(1);
-        console.log(topic);
-        document.getElementById('message').style.display = "none";
-        document.getElementById('notice').style.display = "none";
+      function setActive(topic){
+        if(topic!=""){
+           console.log(topic);
+        channelList.forEach(element => {
+          document.getElementById(element).style.display = "none";
+          document.getElementById(element+'Button').classList.remove("active");
+        })
         document.getElementById(topic).style.display = "block";
-        document.getElementById('messageButton').classList.remove("active");
-        document.getElementById('noticeButton').classList.remove("active");
         document.getElementById(topic+'Button').className = "active";
         console.log(document.getElementById(topic+'Button'));
-      }, false);
+        }
+      }
+      var socket = io();
+      var topic=document.location.hash;
+      topic=topic.slice(1);
+      var channelList = new Array();
+      fetch(document.location.origin+"/channelList")
+        .then(response => response.json())
+        .then(json => {
+          console.log(json);
+          json.channelList.forEach(element => {
+            channelList.push(element.name)
+            var item = document.createElement('ul');
+            item.className="messages";
+            item.id=element.name;
+            document.getElementById("messageLists").appendChild(item);
+            var channelButton = document.createElement('li');
+            var buttoncontent = document.createElement('a');
+            channelButton.className="button";
+            buttoncontent.id=element.name+'Button';
+            buttoncontent.href = '#'+element.name;
+            buttoncontent.text=element.name;
+            channelButton.appendChild(buttoncontent);
+            document.getElementById("channelButtons").appendChild(channelButton);
+            if(element.default&&topic==''){
+              topic=element.name;
+            }
+          });
+
+          setActive(topic);
+          document.location.hash='#'+topic;
+          lisienOntopic(channelList);
+          window.addEventListener('hashchange', function(){
+            if(document.location.hash!='')
+            topic=document.location.hash.slice(1)
+            setActive(topic)
+          } , false)
+        })
+      var form = document.getElementById('form');
+      var input = document.getElementById('input');
+      
 
       form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -89,19 +120,17 @@
             input.value = '';
         }
       });
-
-      socket.on('message', function(msg) {
+      function lisienOntopic(channelList){
+        channelList.forEach(element=>{
+          socket.on(element, function(msg) {
         var item = document.createElement('li');
         item.textContent = msg;
-        document.getElementById('message').appendChild(item);
+        document.getElementById(element).appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
+        })
+        
       });
-      socket.on('notice', function(msg) {
-        var item = document.createElement('li');
-        item.textContent = msg;
-        document.getElementById('notice').appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-      });
+      }
     </script>
   </body>
 </html>

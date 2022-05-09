@@ -9,7 +9,10 @@ let channel = JSON.parse(channelStr).channelList;
 http.listen(80);
 app.get('/',function(req,res){
   res.sendFile(__dirname+'/index.html');
-})
+});
+app.get('/channelList',function(req,res){
+  res.sendFile(__dirname+'/server_config/channel.json');
+});
 console.log("listened to 80");
 
 io.on('connection', function (socket) {
