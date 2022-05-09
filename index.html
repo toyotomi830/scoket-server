@@ -10,24 +10,71 @@
       #input:focus { outline: none; }
       #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
 
-      #messages { list-style-type: none; margin: 0; padding: 0; }
-      #messages > li { padding: 0.5rem 1rem; }
-      #messages > li:nth-child(odd) { background: #efefef; }
+      .messages { list-style-type: none; margin: 0; padding: 0; }
+      .messages > li { padding: 0.5rem 1rem; float: center;}
+      .messages > li:nth-child(odd) { background: #efefef; }
+      ul.button {
+          list-style-type: none;
+          margin: 0;
+          padding: 0;
+          overflow: hidden;
+          background-color: #333;
+          position: fixed;
+          top: 0;
+          width: 100%;
+      }
+
+      li.button {
+          float: left;
+      }
+
+      li a {
+          display: block;
+          color: white;
+          text-align: center;
+          padding: 2rem 2rem;
+          text-decoration: none;
+      }
+
+      li a:hover:not(.active) {
+          background-color: rgb(133, 128, 128);
+      }
+      .active {
+          background-color: #83b4ec;
+      }
     </style>
   </head>
   <body>
-    <ul id="messages"></ul>
+    <ul class="button">
+      <li class="button" ><a class="active" href="#message" id="messageButton">message</a></li>
+      <li class="button" ><a href="#notice" id="noticeButton">notice</a></li>
+    </ul>
+    <div style="margin-top: 5rem;"><ul class="messages" id="message"></ul>
+    <ul class="messages" id="notice" hidden></ul>
     <form id="form" action="">
       <input id="input" autocomplete="off" /><button>Send</button>
-    </form>
+    </form></div>
+    
 
     <script type="module">
         import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";      
       var socket = io();
-
-      var messages = document.getElementById('messages');
+      
       var form = document.getElementById('form');
       var input = document.getElementById('input');
+      var topic = "message";
+      window.addEventListener('hashchange', function() {
+        topic=document.location.hash;
+        topic=topic.slice(1);
+        console.log(topic);
+        document.getElementById('message').style.display = "none";
+        document.getElementById('notice').style.display = "none";
+        document.getElementById(topic).style.display = "block";
+        document.getElementById('messageButton').classList.remove("active");
+        document.getElementById('noticeButton').classList.remove("active");
+        document.getElementById(topic+'Button').className = "active";
+        console.log(document.getElementById(topic+'Button'));
+      }, false);
 
       form.addEventListener('submit', function(e) {
         e.preventDefault();
@@ -35,9 +82,10 @@
             var item = document.createElement('li');
             item.textContent = input.value;
             item.style.background="#777777";
-            messages.appendChild(item);
+            var tar=document.getElementById(topic);
+            tar.appendChild(item);
             window.scrollTo(0, document.body.scrollHeight);
-            socket.emit('message', input.value);
+            socket.emit(topic, input.value);
             input.value = '';
         }
       });
@@ -45,7 +93,13 @@
       socket.on('message', function(msg) {
         var item = document.createElement('li');
         item.textContent = msg;
-        messages.appendChild(item);
+        document.getElementById('message').appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      socket.on('notice', function(msg) {
+        var item = document.createElement('li');
+        item.textContent = msg;
+        document.getElementById('notice').appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       });
     </script>
