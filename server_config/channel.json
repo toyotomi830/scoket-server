@@ -1,3 +1,0 @@
-{
-    "channelList":[{"name":"message","default":true},{"name":"notice","default":false},{"name":"not_safe_for_work","default":false}]
-}

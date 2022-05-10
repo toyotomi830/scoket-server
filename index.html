@@ -57,52 +57,100 @@
         import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";      
       function setActive(topic){
         if(topic!=""){
-           console.log(topic);
-        channelList.forEach(element => {
+          channelList.forEach(element => {
           document.getElementById(element).style.display = "none";
           document.getElementById(element+'Button').classList.remove("active");
         })
         document.getElementById(topic).style.display = "block";
         document.getElementById(topic+'Button').className = "active";
-        console.log(document.getElementById(topic+'Button'));
         }
       }
-      var socket = io();
-      var topic=document.location.hash;
+      
+      function lisienOntopic(channelList){
+        channelList.forEach(element=>{
+          socket.on(element, function(msg) {
+        var item = document.createElement('li');
+        item.textContent = msg;
+        document.getElementById(element).appendChild(item);
+        window.scrollTo(0, document.body.scrollHeight);
+        })
+        
+      });
+      }
+
+      function localstorge() {
+        var p=new Promise(function(reslove,reject){
+          var user;
+          if(!window.localStorage){
+          alert('do not support local storage!');
+          reject();
+          }
+          if(window.localStorage.getItem('userid')==null){
+            fetch(document.location.origin+"/newUser")
+            .then(response => response.json())
+            .then(json => {
+                user=json;
+                console.log(user);
+                window.localStorage.setItem('userid',user.id);
+              })
+              console.log(window.localStorage.getItem('userid'));
+              reslove(user);
+          }
+          else{
+            let url = new URL(document.location.origin+"/getUser");
+            url.searchParams.append('id',window.localStorage.getItem('userid'));
+            fetch(url)
+            .then(response => response.json())
+            .then(json => {
+                user=json;
+                console.log(user);
+                if(user.id!=window.localStorage.getItem('userid')){
+                  window.localStorage.setItem('userid',user.id);
+                }
+                console.log(window.localStorage.getItem('userid'));
+                reslove(user);
+            })
+          }
+        });
+        
+        return p;
+      }
+      
+      let socket = io();
+      let topic=document.location.hash;
       topic=topic.slice(1);
-      var channelList = new Array();
-      fetch(document.location.origin+"/channelList")
-        .then(response => response.json())
-        .then(json => {
-          console.log(json);
-          json.channelList.forEach(element => {
-            channelList.push(element.name)
+      let channelList = new Array();
+      localstorge()
+        .then(user=>{
+          user.channelList.forEach(channel=>{
+            channelList.push(channel.name);
             var item = document.createElement('ul');
             item.className="messages";
-            item.id=element.name;
+            item.id=channel.name;
             document.getElementById("messageLists").appendChild(item);
             var channelButton = document.createElement('li');
             var buttoncontent = document.createElement('a');
             channelButton.className="button";
-            buttoncontent.id=element.name+'Button';
-            buttoncontent.href = '#'+element.name;
-            buttoncontent.text=element.name;
+            buttoncontent.id=channel.name+'Button';
+            buttoncontent.href = '#'+channel.name;
+            buttoncontent.text=channel.name;
             channelButton.appendChild(buttoncontent);
             document.getElementById("channelButtons").appendChild(channelButton);
-            if(element.default&&topic==''){
-              topic=element.name;
+            if(channel.default&&topic==''){
+              topic=channel.name;
             }
-          });
 
-          setActive(topic);
-          document.location.hash='#'+topic;
-          lisienOntopic(channelList);
-          window.addEventListener('hashchange', function(){
-            if(document.location.hash!='')
-            topic=document.location.hash.slice(1)
-            setActive(topic)
-          } , false)
-        })
+            setActive(topic);
+            document.location.hash='#'+topic;
+            console.log(channelList);
+            lisienOntopic(channelList);
+            window.addEventListener('hashchange', function(){
+              if(document.location.hash!='')
+              topic=document.location.hash.slice(1)
+              setActive(topic)
+            } , false)
+          })
+        });
       var form = document.getElementById('form');
       var input = document.getElementById('input');
       
@@ -120,17 +168,6 @@
             input.value = '';
         }
       });
-      function lisienOntopic(channelList){
-        channelList.forEach(element=>{
-          socket.on(element, function(msg) {
-        var item = document.createElement('li');
-        item.textContent = msg;
-        document.getElementById(element).appendChild(item);
-        window.scrollTo(0, document.body.scrollHeight);
-        })
-        
-      });
-      }
     </script>
   </body>
 </html>

@@ -1,0 +1,23 @@
+[
+	{
+		"id": "idDCPXhP",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			},
+			{
+				"name":"not_safe_for_work",
+				"default":false,
+				"security":false
+			}
+		]
+	}
+]
