@@ -37,7 +37,7 @@ app.get('/newUser',function(req,res){
   res.send(newUser);
   users.push(newUser);
   let data=JSON.stringify(users,null,'\t');
-  fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{console.log(err);})
+  fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
 })
 app.get('/getUser',function(req,res){
   console.log(req.query);
@@ -54,7 +54,7 @@ app.get('/getUser',function(req,res){
     users.push(newUser);
     user=newUser;
     var data=JSON.stringify(users,null,'\t');
-    fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{console.log(err);})
+    fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
   }
   res.send(user);
 })

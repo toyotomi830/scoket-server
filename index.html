@@ -92,9 +92,10 @@
                 user=json;
                 console.log(user);
                 window.localStorage.setItem('userid',user.id);
+                reslove(user);
               })
               console.log(window.localStorage.getItem('userid'));
-              reslove(user);
+              
           }
           else{
             let url = new URL(document.location.origin+"/getUser");
@@ -143,13 +144,13 @@
             setActive(topic);
             document.location.hash='#'+topic;
             console.log(channelList);
-            lisienOntopic(channelList);
             window.addEventListener('hashchange', function(){
               if(document.location.hash!='')
               topic=document.location.hash.slice(1)
               setActive(topic)
             } , false)
           })
+          lisienOntopic(channelList);
         });
       var form = document.getElementById('form');
       var input = document.getElementById('input');

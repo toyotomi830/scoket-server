@@ -14,9 +14,105 @@
 				"security": false
 			},
 			{
-				"name":"not_safe_for_work",
-				"default":false,
-				"security":false
+				"name": "not_safe_for_work",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "_pWtQJLr",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "jPxrSXV4",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "O-e4de8H",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "DQ1rSHwV",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "CgEC7Bbr",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "o9f48kGv",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
 			}
 		]
 	}
