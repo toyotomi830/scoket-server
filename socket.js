@@ -59,9 +59,12 @@ app.get('/getUser',function(req,res){
   res.send(user);
 })
 app.get('/setting',function(req,res){
-  if(req.query.passworld==security.passworld){
+  if(req.query.password==undefined){
+    res.sendFile(__dirname+'/setting.html');
+  }
+  else if(req.query.password==security.password){
     switch (req.query.type) {
-    case 'addchannel':
+    case 'addChannel':
       if(channel.find(element => element.name==req.query.name)==undefined){
         var newChannel={
                     'name': req.query.name,
@@ -77,7 +80,7 @@ app.get('/setting',function(req,res){
         res.send('channel '+req.query.name+' already exist!');
       }
       break;
-    case 'removechannel':
+    case 'removeChannel':
       if(channel.find(element => element.name==req.query.name)==undefined){
         res.send('channel '+req.query.name+' unexist!');
       }
@@ -88,7 +91,7 @@ app.get('/setting',function(req,res){
         res.send('channel '+req.query.name+' removed!');
       }
       break;
-    case 'adduserchannel':
+    case 'addUserChannel':
       var user=users.find(element => element.id==req.query.id);
       if(user==undefined){
         res.send('user '+req.query.id+' unexist');
@@ -104,12 +107,18 @@ app.get('/setting',function(req,res){
         res.send('channel '+req.query.name+'add to user'+req.query.id);
       }
       break;
+    case 'checkPassword':
+      res.send(true)
+      break;
     default:
       res.send('command unexist!');
       break;
     }
   }else{
-    res.send('worng passworld')
+    if(req.query.type=='checkPassword')
+      res.send(false)
+    else
+      res.send('worng passworld')
   }
 })
 

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>unchainable setting</title>
+        <style>
+            body { margin: 0; padding-bottom: 3rem; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+            form.setting{ padding: 0.25rem;  bottom: 0; left: 0; right: 0;  height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px); }
+            input.setting{border: none; padding: 0 1rem; flex-grow: 1; border-radius: 2rem; margin: 0.25rem;}
+            button.setting { background: rgb(139, 138, 138); border: none; padding: 0.5rem 0.5rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; cursor: pointer;}
+            #form > button { background: #333; border: none; padding: 0 1rem; margin: 0.25rem; border-radius: 3px; outline: none; color: #fff; }
+            ul.button {
+                list-style-type: none;
+                margin: 0;
+                padding: 0;
+                overflow: hidden;
+                background-color: #333;
+                position: fixed;
+                top: 0;
+                width: 100%;
+            }
+
+            li.button {
+                float: left;
+            }
+
+            li a {
+                display: block;
+                color: white;
+                text-align: center;
+                padding: 2rem 2rem;
+                text-decoration: none;
+            }
+
+            li a:hover:not(.active) {
+                background-color: rgb(133, 128, 128);
+            }
+            .active {
+                background-color: #83b4ec;
+            }
+        </style>
+    </head>
+    <body>
+        <ul class="button">
+            <li style="float:left; padding-left: 1rem;" ><a href="/.."><strong>&lArr; Back</strong></a></i></li>
+        </ul>
+        <div id="passwordPage" style="margin-top: 7rem; margin-left: 2rem; margin-right: 2rem; padding: 0.25rem;  bottom: 0; left: 0; right: 0;  height: 3rem; box-sizing: border-box; backdrop-filter: blur(10px);text-align: center;">
+            Please verify admin password:
+            <form action="" class="setting" id="password">
+                Password: <input type="password" class="setting" id="passwordInput"/>
+                <button class="setting" autofocus>submit</button>
+            </form>
+        </div>
+        <div style="margin-top: 4rem; margin-left: 2rem; margin-right: 2rem; padding: 0.25rem;  bottom: 0; left: 0; right: 0;"></div>
+        <ul style="position:fixed; background: rgb(207, 199, 129); list-style-type: none;display:none;float:right" id="type">
+            <li style="padding: 2rem 2rem;">
+                <a href="#addChannel"> add channel </a>
+            </li>
+            <li style="padding: 2rem 2rem;" >
+                <a href="#removeChannel"> remove channel</a>
+            </li>
+            <li style="padding: 2rem 2rem; ">
+                <a href="#addUserChannel"> add user to channel </a>
+            </li>
+        </ul>
+        <div style="margin-left: 25rem;margin-top: 7rem;">
+            <form action="" class="setting" id="channel">
+                channel: <input style="border: none; padding: 0 1rem; flex-grow: 1; border-radius: 0.5rem; margin: 0.25rem;background: rgb(197, 197, 197);" id="channelName0"/>
+                <button class="setting" autofocus>submit</button>
+            </form>
+            <form action="" class="setting" id="user">
+                user id: <input  style="border: none; padding: 0 1rem; flex-grow: 1; border-radius: 0.5rem; margin: 0.25rem;background: rgb(197, 197, 197);" id="userId"/><br/>
+                channel: <input  style="border: none; padding: 0 1rem; flex-grow: 1; border-radius: 0.5rem; margin: 0.25rem;background: rgb(197, 197, 197);" id="channelName1"/>
+                <button class="setting" autofocus>submit</button>
+            </form>
+
+        </div>
+        <script>
+            let password="";
+            var form0 = document.getElementById("password");
+            var form1 = document.getElementById("channel");
+            var form2 = document.getElementById("user");
+            var input = document.getElementById("passwordInput");
+            var type;
+            document.getElementById("user").style.display="none";
+            document.getElementById("channel").style.display="none";
+            form0.addEventListener('submit',e=>{
+                e.preventDefault();
+                var url = new URL(document.location);
+                url.searchParams.append('password',input.value);
+                url.searchParams.append('type','checkPassword');
+                fetch(url)
+                    .then(res=>res.json())
+                    .then(json=>{
+                        console.log(json);
+                        if(json===true){
+                            console.log("correct password")
+                            document.getElementById("passwordPage").style.display="none";
+                            document.getElementById("type").style.display="block";
+                            document.getElementById("channel").style.display="block";
+                            document.location.hash="addChannel"
+                            password = input.value;
+                            type=addChannel;
+                        }
+                        else{
+                            alert("wrong password")
+                        }
+                    })
+            })
+            form1.addEventListener('submit',e=>{
+                e.preventDefault();
+                var url = new URL(document.location.origin+document.location.pathname);
+                url.searchParams.append('password',password);
+                url.searchParams.append('type',type);
+                url.searchParams.append('name',document.getElementById('channelName0').value);
+                console.log(url);
+                fetch(url)
+                    .then(res=>res.text())
+                    .then(text=>{
+                        alert(text)
+                        document.getElementById('channelName0').value=""
+                    })
+            })
+            form2.addEventListener('submit',e=>{
+                e.preventDefault();
+                var url = new URL(document.location.origin+document.location.pathname);
+                url.searchParams.append('password',password);
+                url.searchParams.append('type',type);
+                url.searchParams.append('name',document.getElementById('channelName1').value);
+                url.searchParams.append('id',document.getElementById('userId').value)
+                fetch(url)
+                    .then(res=>res.text())
+                    .then(text=>{
+                        alert(text)
+                        document.getElementById('channelName1').value=""
+                        document.getElementById('userId').value=""
+                    })
+            })
+            window.addEventListener('hashchange', function(){
+              if(document.location.hash!='')
+                type=document.location.hash.slice(1)
+              if(type=="addUserChannel"){
+                document.getElementById("user").style.display="block";
+                document.getElementById("channel").style.display="none";
+              }
+              else{
+                document.getElementById("user").style.display="none";
+                document.getElementById("channel").style.display="block";
+              }
+            } , false)
+        </script>
+    </body>
+</html>
