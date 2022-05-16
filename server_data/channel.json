@@ -13,5 +13,10 @@
 		"name": "not_safe_for_work",
 		"default": false,
 		"security": true
+	},
+	{
+		"name": "aaa",
+		"default": false,
+		"security": false
 	}
 ]

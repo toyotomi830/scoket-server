@@ -1,26 +1,5 @@
 [
 	{
-		"id": "idDCPXhP",
-		"name": "Runtong",
-		"channelList": [
-			{
-				"name": "message",
-				"default": true,
-				"security": false
-			},
-			{
-				"name": "notice",
-				"default": false,
-				"security": false
-			},
-			{
-				"name": "not_safe_for_work",
-				"default": false,
-				"security": false
-			}
-		]
-	},
-	{
 		"id": "_pWtQJLr",
 		"name": "",
 		"channelList": [
@@ -127,6 +106,51 @@
 			},
 			{
 				"name": "notice",
+				"default": false,
+				"security": false
+			}
+		]
+	},
+	{
+		"id": "idDCPXhP",
+		"name": "Runtong",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			},
+			{
+				"name": "not_safe_for_work",
+				"default": false,
+				"security": false
+			},
+			{
+				"name": "aaa"
+			}
+		]
+	},
+	{
+		"id": "Egs2tVsv",
+		"name": "",
+		"channelList": [
+			{
+				"name": "message",
+				"default": true,
+				"security": false
+			},
+			{
+				"name": "notice",
+				"default": false,
+				"security": false
+			},
+			{
+				"name": "aaa",
 				"default": false,
 				"security": false
 			}

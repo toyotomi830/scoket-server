@@ -168,7 +168,6 @@
               topic=channel.name;
             }
 
-            setActive(topic);
             document.location.hash='#'+topic;
             console.log(channelList);
             window.addEventListener('hashchange', function(){
@@ -179,6 +178,7 @@
             activeUser=user
           })
           lisienOntopic(channelList);
+          setActive(topic);
         });
       var form = document.getElementById('form');
       var input = document.getElementById('input');

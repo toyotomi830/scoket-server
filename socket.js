@@ -87,7 +87,12 @@ app.get('/setting',function(req,res){
       else{
         channel = channel.filter(element => element.name!=req.query.name);
         var data=JSON.stringify(channel,null,'\t');
+        users.forEach(element=>{
+          element.channelList.filter(element => element.name!=req.query.name);
+        })
         fs.writeFile(__dirname+'/server_data/channel.json',data,{flag:'w+'},err=>{console.log(err);});
+        data=JSON.stringify(users,null,'\t')
+        fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
         res.send('channel '+req.query.name+' removed!');
       }
       break;
@@ -95,6 +100,9 @@ app.get('/setting',function(req,res){
       var user=users.find(element => element.id==req.query.id);
       if(user==undefined){
         res.send('user '+req.query.id+' unexist');
+      }
+      else if(channel.find(element=>element.name==req.query.name)==undefined){
+        res.send('channel'+req.query.name+'unexist');
       }
       else{
         user.channelList.push({
@@ -104,6 +112,8 @@ app.get('/setting',function(req,res){
                               })
         users=users.filter(element => element.id!=req.query.id);
         users.push(user);
+        var data=JSON.stringify(users,null,'\t')
+        fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
         res.send('channel '+req.query.name+'add to user'+req.query.id);
       }
       break;
