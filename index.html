@@ -56,169 +56,116 @@
     
 
     <script type="module">
-        import { io } from "https://cdn.socket.io/4.4.1/socket.io.esm.min.js";      
-      function setActive(topic){
+      function setActive(topic,app){
         if(topic!=""){
-          channelList.forEach(element => {
-          document.getElementById(element).style.display = "none";
-          document.getElementById(element+'Button').classList.remove("active");
+          app.user.channelList.forEach(element => {
+          document.getElementById(element.name).style.display = "none";
+          document.getElementById(element.name+'Button').classList.remove("active");
         })
         document.getElementById(topic).style.display = "block";
         document.getElementById(topic+'Button').className = "active";
         }
       }
+      import {Unchainable} from "/Unchainable.js"
+      var topic=document.location.hash.slice(1);
+      if(!window.localStorage){
+        alert("Local storage unsupport!!!\nSuggest using chrome or firefox");
+      }
       
-      function lisienOntopic(channelList){
-        channelList.forEach(element=>{
-          socket.on(element, function(msg) {
-            var user=msg.user;
-            var userid=document.getElementById(element+'lastUser');
-            if(userid==null){
-              userid = document.createElement('ul');
-              userid.className='messages';
-              userid.style.background="#ffffff"
-              userid.header = user.id;
-              userid.textContent = (user.name!="")?user.name: user.id;
-              userid.id = element+'lastUser';
-              document.getElementById(element).appendChild(userid);
-              console.log(0);
-            }
-            else if(userid.header.localeCompare(user.id)!=0){
-              userid.removeAttribute('id');
-              userid = document.createElement('ul');
-              userid.className='messages';
-              userid.style.background="#ffffff"
-              userid.header = user.id;
-              userid.textContent = (user.name!="")?user.name: user.id;
-              userid.id = element+'lastUser';
-              console.log(1);
-              document.getElementById(element).appendChild(userid);
-            }
+      let app=await Unchainable.build(window.localStorage.getItem('userid'));
+      console.log(app);
+      if(window.localStorage.getItem('userid')==null){
+        window.localStorage.setItem('userid',app.user.id);
+      }
+      app.user.channelList.forEach(channel=>{
+          var item = document.createElement('ul');
+          item.className='channel';
+          item.id=channel.name;
+          document.getElementById("messageLists").appendChild(item);
+          var channelButton = document.createElement('li');
+          var buttoncontent = document.createElement('a');
+          channelButton.className="button";
+          buttoncontent.id=channel.name+'Button';
+          buttoncontent.href = '#'+channel.name;
+          buttoncontent.text=channel.name;
+          channelButton.appendChild(buttoncontent);
+          document.getElementById("channelButtons").appendChild(channelButton);
+          if(channel.default&&topic==''){
+            topic=channel.name;
+          }
+        })
+      app.setActive(topic,setActive);
+      document.location.hash='#'+topic;
+      app.listen(function(element,msg){
+        console.log(msg);
+        var user=msg.user;
+          var userid=document.getElementById(element+'lastUser');
+          if(userid==null){
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.style.background="#ffffff"
+            userid.header = user.id;
+            userid.textContent = (user.name!="")?user.name: user.id;
+            userid.id = element+'lastUser';
+            document.getElementById(element).appendChild(userid);
+            console.log(0);
+          }
+          else if(userid.header.localeCompare(user.id)!=0){
+            userid.removeAttribute('id');
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.style.background="#ffffff"
+            userid.header = user.id;
+            userid.textContent = (user.name!="")?user.name: user.id;
+            userid.id = element+'lastUser';
+            console.log(1);
+            document.getElementById(element).appendChild(userid);
+          }
         var item = document.createElement('li');
         item.className = 'messages';
         item.textContent = msg.msg;
         userid.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
-        })
-        
-      });
+      })
+    var form = document.getElementById('form');
+    var input = document.getElementById('input');
+    window.addEventListener('hashchange', function(){
+            if(document.location.hash!='')
+            topic=document.location.hash.slice(1)
+            app.setActive(topic,setActive);
+          } , false)
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      if (input.value) {
+          var userid=document.getElementById(topic+'lastUser');
+          var tar=document.getElementById(topic);
+          if(userid==null){
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.header = app.user.id;
+            userid.textContent = (app.user.name!="")?app.user.name: app.user.id;
+            userid.id = topic+'lastUser';
+            tar.appendChild(userid);
+            console.log(0);
+          }
+          else if(userid.header.localeCompare(app.user.id)!=0){
+            userid.removeAttribute('id');
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.header = app.user.id;
+            userid.textContent = (app.user.name!="")?app.user.name: app.user.id;
+            userid.id = topic+'lastUser';
+            tar.appendChild(userid);
+          }
+          var item = document.createElement('li');
+          item.className = 'messages';
+          item.textContent = input.value;
+          userid.appendChild(item);
+          window.scrollTo(0, document.body.scrollHeight);
+          app.publish(input.value)
+          input.value = '';
       }
-
-      function localstorge() {
-        var p=new Promise(function(reslove,reject){
-          var user;
-          if(!window.localStorage){
-          alert('do not support local storage!');
-          reject();
-          }
-          if(window.localStorage.getItem('userid')==null){
-            fetch(document.location.origin+"/newUser")
-            .then(response => response.json())
-            .then(json => {
-                user=json;
-                console.log(user);
-                window.localStorage.setItem('userid',user.id);
-                reslove(user);
-              })
-              console.log(window.localStorage.getItem('userid'));
-              
-          }
-          else{
-            let url = new URL(document.location.origin+"/getUser");
-            url.searchParams.append('id',window.localStorage.getItem('userid'));
-            fetch(url)
-            .then(response => response.json())
-            .then(json => {
-                user=json;
-                console.log(user);
-                if(user.id!=window.localStorage.getItem('userid')){
-                  window.localStorage.setItem('userid',user.id);
-                }
-                console.log(window.localStorage.getItem('userid'));
-                reslove(user);
-            })
-          }
-        });
-        
-        return p;
-      }
-      
-      let socket = io();
-      let topic=document.location.hash;
-      topic=topic.slice(1);
-      let channelList = new Array();
-      let activeUser;
-      localstorge()
-        .then(user=>{
-          user.channelList.forEach(channel=>{
-            channelList.push(channel.name);
-            var item = document.createElement('ul');
-            item.className='channel';
-            item.id=channel.name;
-            document.getElementById("messageLists").appendChild(item);
-            var channelButton = document.createElement('li');
-            var buttoncontent = document.createElement('a');
-            channelButton.className="button";
-            buttoncontent.id=channel.name+'Button';
-            buttoncontent.href = '#'+channel.name;
-            buttoncontent.text=channel.name;
-            channelButton.appendChild(buttoncontent);
-            document.getElementById("channelButtons").appendChild(channelButton);
-            if(channel.default&&topic==''){
-              topic=channel.name;
-            }
-
-            document.location.hash='#'+topic;
-            console.log(channelList);
-            window.addEventListener('hashchange', function(){
-              if(document.location.hash!='')
-              topic=document.location.hash.slice(1)
-              setActive(topic)
-            } , false)
-            activeUser=user
-          })
-          lisienOntopic(channelList);
-          setActive(topic);
-        });
-      var form = document.getElementById('form');
-      var input = document.getElementById('input');
-      
-
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        if (input.value) {
-            var userid=document.getElementById(topic+'lastUser');
-            var tar=document.getElementById(topic);
-            if(userid==null){
-              userid = document.createElement('ul');
-              userid.className='messages';
-              userid.header = activeUser.id;
-              userid.textContent = (activeUser.name!="")?activeUser.name: activeUser.id;
-              userid.id = topic+'lastUser';
-              tar.appendChild(userid);
-              console.log(0);
-            }
-            else if(userid.header.localeCompare(activeUser.id)!=0){
-              userid.removeAttribute('id');
-              userid = document.createElement('ul');
-              userid.className='messages';
-              userid.header = activeUser.id;
-              userid.textContent = (activeUser.name!="")?activeUser.name: activeUser.id;
-              userid.id = topic+'lastUser';
-              tar.appendChild(userid);
-            }
-            var item = document.createElement('li');
-            item.className = 'messages';
-            item.textContent = input.value;
-            userid.appendChild(item);
-            window.scrollTo(0, document.body.scrollHeight);
-            var payload={
-              user:activeUser,
-              msg:input.value
-            }
-            socket.emit(topic, payload);
-            input.value = '';
-        }
       });
     </script>
   </body>

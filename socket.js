@@ -1,6 +1,8 @@
 var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
+const mongoDB = require('mongodb').MongoClient;
+const dbURL = "mongodb://localhost:27017/test"
 const res = require('express/lib/response');
 const {nanoid} = require('nanoid');
 const fs = require("fs");
@@ -25,25 +27,12 @@ app.get('/',function(req,res){
 app.get('/channelList',function(req,res){
   res.sendFile(__dirname+'/server_data/channel.json');
 });
-app.get('/newUser',function(req,res){
-  var newUser=new User();
-  var channelList=new Array();
-  channel.forEach(element => {
-    if(!element.security){
-      channelList.push(element);
-    }
-  });
-  newUser.channelList=channelList
-  res.send(newUser);
-  users.push(newUser);
-  let data=JSON.stringify(users,null,'\t');
-  fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
-})
 app.get('/getUser',function(req,res){
-  console.log(req.query);
   var user = users.find(element => element.id==req.query.id);
   if(user==undefined){
     var newUser=new User();
+    newUser.id=(req.query.id!='null')?req.query.id:newUser.id;
+    console.log(newUser);
     var channelList=new Array();
     channel.forEach(element => {
       if(!element.security){
@@ -57,6 +46,9 @@ app.get('/getUser',function(req,res){
     fs.writeFile(__dirname+'/server_data/user.json',data,{flag:'w+'},err=>{if(err!=null)console.log(err);})
   }
   res.send(user);
+})
+app.get('/Unchainable.js',function(req,res){
+  res.sendFile(__dirname+'/unchainable.js');
 })
 app.get('/setting',function(req,res){
   if(req.query.password==undefined){
