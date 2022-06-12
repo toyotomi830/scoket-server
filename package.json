@@ -1,8 +1,13 @@
 {
+  "name": "scoket-server",
+  "version": "0.0.1",
+  "main": "socket.js",
+  "description": "",
   "dependencies": {
     "express": "^4.15.2",
     "mongodb": "^4.6.0",
     "nanoid": "^3.3.4",
+    "node-turn": "^0.0.6",
     "socket.io": "^4.5.0"
   }
 }

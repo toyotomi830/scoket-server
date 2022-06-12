@@ -74,9 +74,11 @@
       
       let app=await Unchainable.build(window.localStorage.getItem('userid'));
       console.log(app);
-      if(window.localStorage.getItem('userid')==null){
-        window.localStorage.setItem('userid',app.user.id);
+      if(window.localStorage.getItem('userid')==null||window.localStorage.getItem('userid')!=app._id){
+        window.localStorage.setItem('userid',app._id);
       }
+      
+      console.log(window.localStorage.getItem('userid'));
       app.user.channelList.forEach(channel=>{
           var item = document.createElement('ul');
           item.className='channel';
@@ -99,31 +101,32 @@
       app.listen(function(element,msg){
         console.log(msg);
         var user=msg.user;
-          var userid=document.getElementById(element+'lastUser');
-          if(userid==null){
-            userid = document.createElement('ul');
-            userid.className='messages';
-            userid.style.background="#ffffff"
-            userid.header = user.id;
-            userid.textContent = (user.name!="")?user.name: user.id;
-            userid.id = element+'lastUser';
-            document.getElementById(element).appendChild(userid);
-            console.log(0);
-          }
-          else if(userid.header.localeCompare(user.id)!=0){
-            userid.removeAttribute('id');
-            userid = document.createElement('ul');
-            userid.className='messages';
-            userid.style.background="#ffffff"
-            userid.header = user.id;
-            userid.textContent = (user.name!="")?user.name: user.id;
-            userid.id = element+'lastUser';
-            console.log(1);
-            document.getElementById(element).appendChild(userid);
-          }
+        var userid=document.getElementById(element+'lastUser');
+        if(userid==null){
+          userid = document.createElement('ul');
+          userid.className='messages';
+          userid.style.background="#ffffff"
+          userid.header = user.id;
+          userid.textContent = (user.name!="")?user.name: user.id;
+          userid.id = element+'lastUser';
+          document.getElementById(element).appendChild(userid);
+          console.log(0);
+        }
+        else if(userid.header.localeCompare(user.id)!=0){
+          userid.removeAttribute('id');
+          userid = document.createElement('ul');
+          userid.className='messages';
+          userid.style.background="#ffffff"
+          userid.header = user.id;
+          userid.textContent = (user.name!="")?user.name: user.id;
+          userid.id = element+'lastUser';
+          console.log(1);
+          document.getElementById(element).appendChild(userid);
+        }
         var item = document.createElement('li');
         item.className = 'messages';
         item.textContent = msg.msg;
+        item.header=msg._id;
         userid.appendChild(item);
         window.scrollTo(0, document.body.scrollHeight);
       })
@@ -163,10 +166,55 @@
           item.textContent = input.value;
           userid.appendChild(item);
           window.scrollTo(0, document.body.scrollHeight);
-          app.publish(input.value)
+          app.publish(input.value,(res)=>{
+            item.header=res;
+          })
           input.value = '';
       }
       });
+
+      app.user.channelList.forEach(channel=>{
+        app.getHistory(null,channel.name,json=>{
+          var lastItem;
+          json.forEach(msg=>{
+          var user=msg.user;
+          var userid=document.getElementById(channel.name+'firstUser');
+          if(userid==null){
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.style.background="#ffffff"
+            userid.header = user.id;
+            userid.textContent = (user.name!="")?user.name: user.id;
+            userid.id = channel.name+'firstUser';
+            console.log(userid.header);
+            document.getElementById(channel.name).appendChild(userid);
+            console.log(0);
+          }
+          else if(userid.header.localeCompare(user.id)!=0){
+            userid.removeAttribute('id');
+            var oldUserid=userid;
+            userid = document.createElement('ul');
+            userid.className='messages';
+            userid.style.background="#ffffff"
+            userid.header = user.id;
+            console.log(userid.header);
+            userid.textContent = (user.name!="")?user.name: user.id;
+            userid.id = channel.name+'firstUser';
+            console.log(1);
+            document.getElementById(channel.name).insertBefore(userid,oldUserid);
+            lastItem=null;
+          }
+          var item = document.createElement('li');
+          console.log(msg);
+          item.className = 'messages';
+          item.textContent = msg.msg;
+          item.header=msg._id;
+          userid.insertBefore(item,lastItem)
+          lastItem=item;
+          })
+          window.scrollTo(0, document.body.scrollHeight);
+        })
+      })
     </script>
   </body>
 </html>
